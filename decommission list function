@@ -1,0 +1,32 @@
+  public ActionResult DecomList()
+        {
+
+                      
+            List<InventoryMaster> InventoryMasters = new List<InventoryMaster>();
+            List<TestClass> test = new List<TestClass>();
+
+            
+            int start = Convert.ToInt32(Request["start"]);
+            int length = Convert.ToInt32(Request["length"]);
+            string searchvalue = Request["search[value]"];
+            string sortColumnName = Request["columns[" + Request["order[0][column]"] + "][name]"];
+            string sortDirection = Request["order[0][dir]"];
+           // int totalRows = db.InventoryMasters.Except(db.InventoryMasters.Where(a => (a.DecommissionDate != null && a.ApplicableForBill.ToUpper().Equals("YES"))).AsQueryable()).ToList().Count;
+            int totalRows = db.InventoryMasters.Where(a => (a.DecommissionDate != null && a.ScopeStatus.ToLower().Equals("removed") && a.ApplicableForBill.ToUpper().Equals("NO"))).ToList().Count;
+            if (!String.IsNullOrEmpty(searchvalue))
+            {
+                pageIndex = 1;
+                //InventoryMasters = db.InventoryMasters.Where(a => a.ServerShortName.Contains(searchvalue) || a.DBInstance.Contains(searchvalue) || a.Appl.Contains(searchvalue)).OrderByDescending(b => b.ID).Except(db.InventoryMasters.Where(a => (a.DecommissionDate != null && a.ApplicableForBill.ToUpper().Equals("YES"))).AsQueryable()).ToList();
+                InventoryMasters = db.InventoryMasters.Where(a => (a.Technology.Contains(searchvalue) || a.Supportprovider.Contains(searchvalue) || a.SupportTeam.Contains(searchvalue) || a.SupportClass.Contains(searchvalue) || a.BusinessUnit.Contains(searchvalue) || a.ServerShortName.Contains(searchvalue) || a.DBInstance.Contains(searchvalue) || a.InstallationType.Contains(searchvalue) || a.EnvType.Contains(searchvalue) || a.Appl.Contains(searchvalue) || a.DbSoftVersion.Contains(searchvalue) || a.DbSoftPatchLevl.Contains(searchvalue) || a.TNSNames.Contains(searchvalue) || a.Port.Contains(searchvalue) || a.AppTier.Contains(searchvalue) || a.CrossChargeCostCenter.Contains(searchvalue) || a.CostCenterOwner.Contains(searchvalue) || a.CrossChargeID.Contains(searchvalue) || a.ScopeStatus.Contains(searchvalue) || a.SOX.Contains(searchvalue) || a.ITGC.Contains(searchvalue) || a.DiasterRecovery.Contains(searchvalue) || a.Noteshistory.Contains(searchvalue) || a.ModifiedBy.Contains(searchvalue) || a.CreatedBy.Contains(searchvalue) || a.BkupMonitor.Contains(searchvalue) || a.OEMDeployed.Contains(searchvalue) || a.OEMTested.Contains(searchvalue) || a.OSWatcherDeplyed.Contains(searchvalue) || a.AppContact.Contains(searchvalue) || a.Hostname.Contains(searchvalue) || a.AzureState.Contains(searchvalue)) && (a.DecommissionDate != null && a.ScopeStatus.ToLower().Equals("removed") && a.ApplicableForBill.ToUpper().Equals("NO"))).OrderByDescending(b => b.ID).ToList();
+            }
+            else
+            {
+                InventoryMasters = db.InventoryMasters.Where(a => (a.DecommissionDate != null && a.ScopeStatus.ToLower().Equals("removed") && a.ApplicableForBill.ToUpper().Equals("NO"))).ToList();
+            }
+            int totalRowsAfterFiltered = InventoryMasters.Count;
+            InventoryMasters = InventoryMasters.OrderBy(sortColumnName + " " + sortDirection).ToList<InventoryMaster>();
+            InventoryMasters = InventoryMasters.Skip(start).Take(length).ToList();
+
+            return Json(new { data = InventoryMasters, draw = Request["draw"], recordsTotal = totalRows, recordsFiltered = totalRowsAfterFiltered }, JsonRequestBehavior.AllowGet);
+
+        }
